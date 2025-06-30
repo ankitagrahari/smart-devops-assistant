@@ -21,6 +21,7 @@ public class GitWebhookController {
 
     @PostMapping("/pr-analyze")
     public String analyzePR(String request){
+        System.out.println("request:"+ request);
         return service.analyzePR(request);
     }
 }
