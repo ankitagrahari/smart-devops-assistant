@@ -20,14 +20,14 @@ public class AIService {
                 .build();
     }
 
-    public Flux<String> analyzePR(String prURL){
+    public String analyzePR(String prURL){
         PromptTemplate pt = new PromptTemplate("""
             summarize the following pull request diff and suggest improvements {prURL}
         """);
 
-        Flux<String> response = chatClient
+        String response = chatClient
                 .prompt(pt.create(Map.of("prURL", prURL)))
-                .stream()
+                .call()
                 .content();
 
         System.out.println("prompt response");

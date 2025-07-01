@@ -23,9 +23,8 @@ public class GitWebhookService {
                     + request.pullRequest().url() + "--"
                     + request.pullRequest().state());
 
-            String response = aiService.analyzePR(request.pullRequest().url())
-                    .toStream()
-                    .collect(Collectors.joining());
+            String response = aiService.analyzePR(request.pullRequest().url());
+            System.out.println("Response:"+response);
             return response;
         }
         return "";
