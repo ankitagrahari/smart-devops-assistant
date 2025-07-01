@@ -66,6 +66,15 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- To resolve incorrect DNS resolutions on MacOS-->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-native-macos</artifactId>
+			<version>4.1.122.Final</version>
+			<scope>runtime</scope>
+			<classifier>osx-aarch_64</classifier> <!-- Or osx-aarch_64 for Apple Silicon (M1/M2) -->
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
