@@ -17,10 +17,9 @@ public class GitWebhookService {
 
     public Flux<String> analyzePR(WebhookRequest request) {
         if (Objects.nonNull(request.pullRequest()) && request.pullRequest().number() > 0) {
-            System.out.println("Request Data:"+request.pullRequest().number()
-                    + "--"
-                    + request.pullRequest().url()
-                    + "--"
+            System.out.println("Request Data:"
+                    + request.pullRequest().number() + "--"
+                    + request.pullRequest().url() + "--"
                     + request.pullRequest().state());
             return aiService.analyzePR(request.pullRequest().url());
         }
