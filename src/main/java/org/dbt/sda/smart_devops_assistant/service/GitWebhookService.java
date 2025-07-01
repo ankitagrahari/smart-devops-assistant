@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class GitWebhookService {
@@ -15,14 +16,18 @@ public class GitWebhookService {
         this.aiService = aiService;
     }
 
-    public Flux<String> analyzePR(WebhookRequest request) {
+    public String analyzePR(WebhookRequest request) {
         if (Objects.nonNull(request.pullRequest()) && request.pullRequest().number() > 0) {
             System.out.println("Request Data:"
                     + request.pullRequest().number() + "--"
                     + request.pullRequest().url() + "--"
                     + request.pullRequest().state());
-            return aiService.analyzePR(request.pullRequest().url());
+
+            String response = aiService.analyzePR(request.pullRequest().url())
+                    .toStream()
+                    .collect(Collectors.joining());
+            return response;
         }
-        return Flux.just();
+        return "";
     }
 }

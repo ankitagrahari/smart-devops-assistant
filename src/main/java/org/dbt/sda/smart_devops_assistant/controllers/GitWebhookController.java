@@ -23,7 +23,7 @@ public class GitWebhookController {
     }
 
     @PostMapping("/pr-analyze")
-    public Flux<String> analyzePR(@RequestBody WebhookRequest request){
+    public String analyzePR(@RequestBody WebhookRequest request){
         System.out.println("request:"+ request);
         return service.analyzePR(request);
     }
