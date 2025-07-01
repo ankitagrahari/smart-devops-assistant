@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 @RestController
 public class GitWebhookController {
@@ -22,7 +23,7 @@ public class GitWebhookController {
     }
 
     @PostMapping("/pr-analyze")
-    public String analyzePR(@RequestBody WebhookRequest request){
+    public Flux<String> analyzePR(@RequestBody WebhookRequest request){
         System.out.println("request:"+ request);
         return service.analyzePR(request);
     }
