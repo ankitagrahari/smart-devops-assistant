@@ -30,7 +30,7 @@ public class AIService {
                 .call()
                 .content();
 
-        System.out.println("prompt response");
+        System.out.println("Response:"+ response);
         return response;
     }
 }
