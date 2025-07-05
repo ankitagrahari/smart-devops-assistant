@@ -1,15 +1,14 @@
 package org.dbt.sda.smart_devops_assistant.service;
 
 import org.dbt.sda.smart_devops_assistant.entities.PRSuggestionResponse;
+import org.dbt.sda.smart_devops_assistant.entities.PRSummaryRequest;
+import org.dbt.sda.smart_devops_assistant.entities.PRSummaryResponse;
 import org.dbt.sda.smart_devops_assistant.entities.WebhookRequest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.RestTemplate;
-import reactor.core.publisher.Flux;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class GitWebhookService {
@@ -31,11 +30,19 @@ public class GitWebhookService {
                     + request.pullRequest().state());
 
             String prDiffStr = restTemplate.getForObject(request.pullRequest().diffUrl(), String.class);
-            System.out.println("prDiff:"+ prDiffStr);
 
-            PRSuggestionResponse response = aiService.analyzePR(prDiffStr);
-//            System.out.println("Response:"+response);
-            return response;
+            return aiService.analyzePR(prDiffStr);
+        }
+        return null;
+    }
+
+    public PRSummaryResponse generateSummary(PRSummaryRequest prSummaryRequest) {
+        if (Objects.nonNull(prSummaryRequest.getPrUrl())) {
+            System.out.println("Request Data:" + prSummaryRequest.getPrUrl());
+
+            String prDiffStr = restTemplate.getForObject(prSummaryRequest.getPrUrl(), String.class);
+            prSummaryRequest.setDiff(prDiffStr);
+            return aiService.generatePRSummary(prSummaryRequest);
         }
         return null;
     }
