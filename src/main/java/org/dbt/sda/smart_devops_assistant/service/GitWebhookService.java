@@ -40,7 +40,7 @@ public class GitWebhookService {
         if (Objects.nonNull(prSummaryRequest.getPrUrl())) {
             System.out.println("Request Data:" + prSummaryRequest.getPrUrl());
 
-            String prDiffStr = restTemplate.getForObject(prSummaryRequest.getPrUrl(), String.class);
+            String prDiffStr = restTemplate.getForObject(prSummaryRequest.getPrUrl()+".diff", String.class);
             prSummaryRequest.setDiff(prDiffStr);
             return aiService.generatePRSummary(prSummaryRequest);
         }
