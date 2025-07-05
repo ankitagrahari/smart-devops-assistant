@@ -1,5 +1,6 @@
 package org.dbt.sda.smart_devops_assistant.service;
 
+import org.dbt.sda.smart_devops_assistant.entities.PRSuggestionResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -20,15 +21,15 @@ public class AIService {
                 .build();
     }
 
-    public String analyzePR(String prURL){
+    public PRSuggestionResponse analyzePR(String prURL){
         PromptTemplate pt = new PromptTemplate("""
             summarize the following pull request diff and suggest improvements {prURL}
         """);
 
-        String response = chatClient
+        PRSuggestionResponse response = chatClient
                 .prompt(pt.create(Map.of("prURL", prURL)))
                 .call()
-                .content();
+                .entity(PRSuggestionResponse.class);
 
         System.out.println("Response:"+ response);
         return response;

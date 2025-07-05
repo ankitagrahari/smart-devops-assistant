@@ -1,5 +1,6 @@
 package org.dbt.sda.smart_devops_assistant.controllers;
 
+import org.dbt.sda.smart_devops_assistant.entities.PRSuggestionResponse;
 import org.dbt.sda.smart_devops_assistant.entities.WebhookRequest;
 import org.dbt.sda.smart_devops_assistant.service.GitWebhookService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class GitWebhookController {
     }
 
     @PostMapping("/pr-analyze")
-    public String analyzePR(@RequestBody WebhookRequest request){
+    public PRSuggestionResponse analyzePR(@RequestBody WebhookRequest request){
         System.out.println("request:"+ request);
         return service.analyzePR(request);
     }
