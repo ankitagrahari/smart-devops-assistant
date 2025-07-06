@@ -1,42 +1,68 @@
 package org.dbt.sda.smart_devops_assistant.service;
 
 import org.dbt.sda.smart_devops_assistant.entities.PRSuggestionResponse;
+import org.dbt.sda.smart_devops_assistant.entities.PRSummaryRequest;
+import org.dbt.sda.smart_devops_assistant.entities.PRSummaryResponse;
 import org.dbt.sda.smart_devops_assistant.entities.WebhookRequest;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.client.RestTemplate;
-import reactor.core.publisher.Flux;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class GitWebhookService {
 
+    private static final Logger logger = LoggerFactory.getLogger(GitWebhookService.class);
+
     AIService aiService;
 
-    RestTemplate restTemplate;
+    GitService gitService;
 
-    public GitWebhookService(AIService aiService, RestTemplateBuilder restTemplateBuilder) {
+    public GitWebhookService(AIService aiService, GitService gitService) {
         this.aiService = aiService;
-        this.restTemplate = restTemplateBuilder.build();
+        this.gitService = gitService;
     }
 
-    public PRSuggestionResponse analyzePR(WebhookRequest request) {
+    public ResponseEntity<PRSuggestionResponse> analyzePR(WebhookRequest request) {
         if (Objects.nonNull(request.pullRequest()) && request.pullRequest().number() > 0) {
-            System.out.println("Request Data:"
-                    + request.pullRequest().number() + "--"
-                    + request.pullRequest().url() + "--"
-                    + request.pullRequest().state());
+            logger.debug("Request Data:{}--{}--{}", request.pullRequest().number(), request.pullRequest().url(), request.pullRequest().state());
 
-            String prDiffStr = restTemplate.getForObject(request.pullRequest().diffUrl(), String.class);
-            System.out.println("prDiff:"+ prDiffStr);
+            ResponseEntity<String> prDiffResponse = gitService.fetchPRDiff(request.pullRequest().diffUrl());
+            String prDiffStr = "";
+            if(prDiffResponse.getStatusCode().is2xxSuccessful())
+                prDiffStr = prDiffResponse.getBody();
+            else
+                return ResponseEntity.notFound().build();
 
-            PRSuggestionResponse response = aiService.analyzePR(prDiffStr);
-//            System.out.println("Response:"+response);
-            return response;
+            return ResponseEntity.ok(aiService.analyzePR(prDiffStr));
         }
-        return null;
+        return ResponseEntity.badRequest().build();
+    }
+
+    public ResponseEntity<PRSummaryResponse> generateSummary(PRSummaryRequest prSummaryRequest) {
+        if (Objects.nonNull(prSummaryRequest.getPrUrl())) {
+            logger.debug("Request Data:{}", prSummaryRequest.getPrUrl());
+
+            ResponseEntity<String> prDiffResponse = gitService.fetchPRDiff(prSummaryRequest.getPrUrl()+".diff");
+            String prDiffStr = "";
+            if(prDiffResponse.getStatusCode().is2xxSuccessful())
+                prDiffStr = prDiffResponse.getBody();
+            else
+                return ResponseEntity.notFound().build();
+
+            prSummaryRequest.setDiff(prDiffStr);
+
+//            TODO: Will look later to get the Files changes on specific PR. As of now getting NOT_FOUND on the API
+//            https://api.github.com/repos/{owner}/{repo}/pulls/{pull_number}/files
+//            ResponseEntity<String> prFilesResponse = gitService.fetchPRFiles(prSummaryRequest.getPrUrl().split("/")[6]);
+//            String prFiles = "";
+//            if(prFilesResponse.getStatusCode().is2xxSuccessful())
+//                prFiles = prDiffResponse.getBody();
+
+            return ResponseEntity.ok(aiService.generatePRSummary(prSummaryRequest));
+        }
+        return ResponseEntity.badRequest().build();
     }
 }
