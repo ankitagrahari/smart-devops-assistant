@@ -4,7 +4,7 @@ provide suggestion on the code changes. It will also push the review messages to
 
 The **development process** is divided into 4 phases and 1 option phase. 
 - [x] Phase 1: Foundation and Setup (Build base Project and integrate basic Github PR analysis) 
-- [ ] Phase 2: Integrate Github + Slack (Create a working CI workflow that uses AI for code review summaries)
+- [x] Phase 2: Integrate Github + Slack (Create a working CI workflow that uses AI for code review summaries)
 - [ ] Phase 3: RAG with Vector Store (Make AI context-aware using your actual codebase/docs)
 - [ ] Phase 4: AI Agents & Coordination (Use multi-agents for dedicated tasks)
 - [ ] Phase 5: Dashboard and Enhancements (Add visibility and manual controls)
@@ -58,6 +58,7 @@ The **development process** is divided into 4 phases and 1 option phase.
 - [ ] Tracing
 - [ ] Extract PR summary for each file
 - [ ] Project Re-structure into different modules
+- [ ] Add PR URL and Author for Slack communication.
 
 ### Blogs series
 - Meet your smart devops assistant: Project Vision and Stack

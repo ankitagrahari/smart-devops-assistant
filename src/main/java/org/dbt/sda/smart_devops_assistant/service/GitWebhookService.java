@@ -65,7 +65,9 @@ public class GitWebhookService {
 //                prFiles = prDiffResponse.getBody();
 
             PRSummaryResponse response = aiService.generatePRSummary(prSummaryRequest);
+
             //Send the response to Slack channel
+            //TODO: Add PR Url and the Author of the PR also to the request.
             slackService.sendPRReviewToSlack(response);
 
             return ResponseEntity.ok(response);
