@@ -20,9 +20,12 @@ public class GitWebhookService {
 
     GitService gitService;
 
-    public GitWebhookService(AIService aiService, GitService gitService) {
+    SlackService slackService;
+
+    public GitWebhookService(AIService aiService, GitService gitService, SlackService slackService) {
         this.aiService = aiService;
         this.gitService = gitService;
+        this.slackService = slackService;
     }
 
     public ResponseEntity<PRSuggestionResponse> analyzePR(WebhookRequest request) {
@@ -61,7 +64,11 @@ public class GitWebhookService {
 //            if(prFilesResponse.getStatusCode().is2xxSuccessful())
 //                prFiles = prDiffResponse.getBody();
 
-            return ResponseEntity.ok(aiService.generatePRSummary(prSummaryRequest));
+            PRSummaryResponse response = aiService.generatePRSummary(prSummaryRequest);
+            //Send the response to Slack channel
+            slackService.sendPRReviewToSlack(response);
+
+            return ResponseEntity.ok(response);
         }
         return ResponseEntity.badRequest().build();
     }
