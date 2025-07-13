@@ -57,13 +57,6 @@ public class GitWebhookService {
 
             prSummaryRequest.setDiff(prDiffStr);
 
-//            TODO: Will look later to get the Files changes on specific PR. As of now getting NOT_FOUND on the API
-//            https://api.github.com/repos/{owner}/{repo}/pulls/{pull_number}/files
-//            ResponseEntity<String> prFilesResponse = gitService.fetchPRFiles(prSummaryRequest.getPrUrl().split("/")[6]);
-//            String prFiles = "";
-//            if(prFilesResponse.getStatusCode().is2xxSuccessful())
-//                prFiles = prDiffResponse.getBody();
-
             PRSummaryResponse response = aiService.generatePRSummary(prSummaryRequest);
 
             //Send the response to Slack channel
