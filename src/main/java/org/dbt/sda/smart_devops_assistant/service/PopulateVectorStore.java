@@ -43,8 +43,11 @@ public class PopulateVectorStore {
                 .map(fileName -> gitRepo.findByPathAndType(fileName, GIT_FILE_TYPE_BLOB))
                 .map(GitFileMetaDataDTO::getUrl)
                 .map(url -> gitService.fetchChangedFileContentFromGit(url))
-                .map(content -> content.replaceAll("\\n", System.lineSeparator()))
+                .peek(logger::info)
+                .map(content -> content.replaceAll("\\n", ""))
+                .peek(logger::info)
                 .map(encodedStr -> new String(Base64.getDecoder().decode(encodedStr)))
+                .peek(logger::info)
                 .forEach(this::addToVectorStore);
     }
 
