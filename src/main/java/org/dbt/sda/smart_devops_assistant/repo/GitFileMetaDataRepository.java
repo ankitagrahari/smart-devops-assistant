@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GitFileMetaDataRepository extends JpaRepository<GitFileMetaDataDTO, Long> {
+
+    GitFileMetaDataDTO findByPathAndType(String path, String type);
 }

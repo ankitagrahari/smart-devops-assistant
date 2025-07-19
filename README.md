@@ -2,6 +2,17 @@
 This is an AI assistant which will help developers review the pull request and 
 provide suggestion on the code changes. It will also push the review messages to Slack.
 
+### How to Run
+- Run ngrok to expose our local development server to the internet. In this case, to Github, so that the webhook incoming url can be sent to our application running in local.
+  `ngrok http http://localhost:8389`
+- If running the AI agent locally, then check for it. I am using docker model runner to run Gemma3.
+  `docker model list`
+  `docker model run ai/gemma3`
+- Run the Chroma DB, using following command
+  `docker run -it --rm --name chroma -p 8000:8000 ghcr.io/chroma-core/chroma:1.0.0`
+- Start spring boot application 
+  `mvn spring-boot:run`
+
 The **development process** is divided into 4 phases and 1 option phase. 
 - [x] Phase 1: Foundation and Setup (Build base Project and integrate basic Github PR analysis) 
 - [x] Phase 2: Integrate Github + Slack (Create a working CI workflow that uses AI for code review summaries)
@@ -53,6 +64,7 @@ The **development process** is divided into 4 phases and 1 option phase.
     - Improve the AIService to query the vector database and include the context for the files which are changed in the PR.
   - Improved AI prompt that include retrieved context like 
     `Given the following context from the codebase and this PR diff, summarize and suggest improvements`
+
 
 ### Phase 4:
 - Use multi agents for dedicated tasks
