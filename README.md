@@ -28,14 +28,21 @@ The **development process** is divided into 4 phases and 1 option phase.
 ### Phase 2:
 - Integrate the response from the AI to Slack. 
 - Create a Slack bot and push the message on Slack using Webhook (as its oneway communication)
-- `AI Code Reviewer` posts review notes and summaries tto Slack automatically.
+- `AI Code Reviewer` posts review notes and summaries to Slack automatically.
 
 ### Phase 3:
 - Make AI context-aware using your actual codebase/docs. (Using RAG and Vector store)
-- Index codebase using Langchain and ChromaDB
+- Index codebase using Spring AI with RAG and ChromaDB
+  1. GET API `https://api.github.com/repos/{{owner}}/{{repo}}/branches/{{branch_name}}` - Fetch the commit.sha 
+  2. GET API `https://api.github.com/repos/{{owner}}/{{repo}}/git/trees/{{sha}}?recursive=1` - Returns list of all files and packages
+  3. Save the list in database under some entity. (Slowly with more PRs almost all required files will be added to `vectorStore`)
+  4. During the webhook trigger, 
+     - find the files in the fetchPRFiles, 
+     - get the file path from the database 
+     - store the content of these files to VectorStore in ChromaDB.
+     - And then run the AI prompt for suggestions.
 - Feed the context into your AI prompts for smarter suggestions.
 - Create an endpoint `/ask-doc` to allow querying project-specific info.
-- AI prompt `Given this PR and current service layer structure, is this new method placed correctly ?`
 - In this phase we will be building 
   - A vector store (ChromaDB in this example) that indexes your code and documents 
     - Install ChromaDB https://docs.spring.io/spring-ai/reference/api/vectordbs/chroma.html#_run_chroma_locally

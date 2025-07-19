@@ -39,6 +39,8 @@ public class GitWebhookService {
             else
                 return ResponseEntity.notFound().build();
 
+            gitService.fetchPRFiles(request.pullRequest().number().toString());
+
             return ResponseEntity.ok(aiService.analyzePR(prDiffStr));
         }
         return ResponseEntity.badRequest().build();
