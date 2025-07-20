@@ -5,6 +5,7 @@ provide suggestion on the code changes. It will also push the review messages to
 ### How to Run
 - Run ngrok to expose our local development server to the internet. In this case, to Github, so that the webhook incoming url can be sent to our application running in local.
   `ngrok http http://localhost:8389`
+  - After running, you have to use the forwarded URL in the Github webhook. 
 - If running the AI agent locally, then check for it. I am using docker model runner to run Gemma3.
   `docker model list`
   `docker model run ai/gemma3`
