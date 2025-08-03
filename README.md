@@ -74,6 +74,7 @@ The **development process** is divided into 4 phases and 1 option phase.
 - Used hugging face `hf.co/mixedbread-ai/mxbai-embed-large-v1` embedding model
 - Chroma DB doesn't have a proper client to see the documents inserted. If you are not having Intellij Ultimate edition, then it will be challenging to see the data added to the vector store. 
 - Couple of APIs were included to fetch the data and delete the collection.
+- ChromaDB integration with Spring AI is not having 'like' option. Refer to the issue https://github.com/spring-projects/spring-ai/issues/328  
 - It is challenging to get models working with a free account. 
 - Slack professional trial account is also completed. :)
 - Last but not the least -- The response from the AI, is not a proper json (missing ending braces), but logs show all suggestions.
