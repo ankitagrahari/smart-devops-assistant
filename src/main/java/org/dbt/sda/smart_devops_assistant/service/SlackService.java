@@ -12,13 +12,13 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class SlackService {
 
-    @Value("${slack.incoming.webhook.url}")
-    private String SLACK_WEBHOOK_INCOMING_URL;
+    private final String SLACK_WEBHOOK_INCOMING_URL;
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     public SlackService(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
+        SLACK_WEBHOOK_INCOMING_URL = System.getenv("SLACK_WEBHOOK_INCOMING_URL");
     }
 
     public void sendPRReviewToSlack(PRSummaryResponse prSummaryResponse){

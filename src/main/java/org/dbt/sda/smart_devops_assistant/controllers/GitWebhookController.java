@@ -31,7 +31,7 @@ public class GitWebhookController {
 
     @PostMapping("/pr-analyze")
     public ResponseEntity<PRSuggestionResponse> analyzePR(@RequestBody WebhookRequest request){
-        logger.debug("request:{}", request);
+        logger.info("request:{}", request);
         return service.analyzePR(request);
     }
 

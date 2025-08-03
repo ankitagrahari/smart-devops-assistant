@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -41,5 +43,15 @@ public class GitController {
             return responseEntity;
         }
         return ResponseEntity.internalServerError().build();
+    }
+
+    @GetMapping("/file/content/{sha}")
+    public String fetchFileContentFromGit(@PathVariable String sha){
+        String  encodedContent = gitService.fetchChangedFileContentFromGit(gitService.generateGitURL(sha));
+        encodedContent = encodedContent.replaceAll("\\n", "");
+        logger.debug("encoded file content {}", encodedContent);
+        String decodedStr = new String(Base64.getDecoder().decode(encodedContent));
+        logger.debug("decodeStr {}", decodedStr);
+        return decodedStr;
     }
 }

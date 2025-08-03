@@ -7,10 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AIService {
@@ -19,19 +24,36 @@ public class AIService {
 
     private final ChatClient chatClient;
 
-    public AIService(ChatClient.Builder chatClientBuilder) {
+    VectorStore vectorStore;
+
+    private static final Double SIMILARITY_THRESHOLD = 0.7;
+
+    public AIService(ChatClient.Builder chatClientBuilder, VectorStore vectorStore) {
         this.chatClient = chatClientBuilder
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 .build();
+        this.vectorStore = vectorStore;
     }
 
-    public PRSuggestionResponse analyzePR(String prDiffURL){
+    public PRSuggestionResponse analyzePR(String prDiff, List<String> fileNames){
         PromptTemplate pt = new PromptTemplate("""
-            As an expert programmer, review the following pull request difference and suggest improvements {prDiffURL}
+            Given the following context from the codebase and this PR diff {prDiff}, summarize and suggest improvements.
         """);
 
+        String files = String.join("','", fileNames);
+        logger.info("files: {}", files);
+        //This query will list down the file content from vector db, and inject it with the prompt to provide context-aware suggestion
+        QuestionAnswerAdvisor qaAdvisor = QuestionAnswerAdvisor.builder(vectorStore)
+                .searchRequest(SearchRequest.builder()
+                        .similarityThreshold(SIMILARITY_THRESHOLD)
+                        .filterExpression("path in ['"+ String.join("','", fileNames) + "']")
+                        .topK(5)
+                        .build())
+                .build();
+
         PRSuggestionResponse response = chatClient
-                .prompt(pt.create(Map.of("prDiffURL", prDiffURL)))
+                .prompt(pt.create(Map.of("prDiff", prDiff)))
+                .advisors(qaAdvisor)
                 .call()
                 .entity(PRSuggestionResponse.class);
 

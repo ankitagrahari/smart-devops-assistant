@@ -2,10 +2,22 @@
 This is an AI assistant which will help developers review the pull request and 
 provide suggestion on the code changes. It will also push the review messages to Slack.
 
+### How to Run
+- Run ngrok to expose our local development server to the internet. In this case, to Github, so that the webhook incoming url can be sent to our application running in local.
+  `ngrok http http://localhost:8389`
+  - After running, you have to use the forwarded URL in the Github webhook. 
+- If running the AI agent locally, then check for it. I am using docker model runner to run Gemma3.
+  `docker model list`
+  `docker model run ai/gemma3`
+- Run the Chroma DB, using following command
+  `docker run -it --rm --name chroma -p 8000:8000 ghcr.io/chroma-core/chroma:1.0.0`
+- Start spring boot application 
+  `mvn spring-boot:run`
+
 The **development process** is divided into 4 phases and 1 option phase. 
 - [x] Phase 1: Foundation and Setup (Build base Project and integrate basic Github PR analysis) 
 - [x] Phase 2: Integrate Github + Slack (Create a working CI workflow that uses AI for code review summaries)
-- [ ] Phase 3: RAG with Vector Store (Make AI context-aware using your actual codebase/docs)
+- [x] Phase 3: RAG with Vector Store (Make AI context-aware using your actual codebase/docs)
 - [ ] Phase 4: AI Agents & Coordination (Use multi-agents for dedicated tasks)
 - [ ] Phase 5: Dashboard and Enhancements (Add visibility and manual controls)
 
@@ -28,14 +40,24 @@ The **development process** is divided into 4 phases and 1 option phase.
 ### Phase 2:
 - Integrate the response from the AI to Slack. 
 - Create a Slack bot and push the message on Slack using Webhook (as its oneway communication)
-- `AI Code Reviewer` posts review notes and summaries tto Slack automatically.
+- `AI Code Reviewer` posts review notes and summaries to Slack automatically.
 
 ### Phase 3:
 - Make AI context-aware using your actual codebase/docs. (Using RAG and Vector store)
-- Index codebase using Langchain and ChromaDB
+- Index codebase using Spring AI with RAG and ChromaDB
+  1. GET API `https://api.github.com/repos/{{owner}}/{{repo}}/branches/{{branch_name}}` - Fetch the commit.sha 
+  2. GET API `https://api.github.com/repos/{{owner}}/{{repo}}/git/trees/{{sha}}?recursive=1` - Returns list of all files and packages
+  3. Save the list in database under some entity. (Slowly with more PRs almost all required files will be added to `vectorStore`)
+  4. During the webhook trigger, 
+     - find the files in the fetchPRFiles, 
+     - get the file path from the database 
+     - store the content of these files to VectorStore in ChromaDB.
+     - And then run the AI prompt for suggestions.
 - Feed the context into your AI prompts for smarter suggestions.
+- Create endpoints to check on chroma database content 
+  - `chroma/data?query=''&expression=''` - will fetch the content based on query or expression provided
+  - `chroma/deleteCollection` - will delete the default collection described in application.properties. 
 - Create an endpoint `/ask-doc` to allow querying project-specific info.
-- AI prompt `Given this PR and current service layer structure, is this new method placed correctly ?`
 - In this phase we will be building 
   - A vector store (ChromaDB in this example) that indexes your code and documents 
     - Install ChromaDB https://docs.spring.io/spring-ai/reference/api/vectordbs/chroma.html#_run_chroma_locally
@@ -46,6 +68,16 @@ The **development process** is divided into 4 phases and 1 option phase.
     - Improve the AIService to query the vector database and include the context for the files which are changed in the PR.
   - Improved AI prompt that include retrieved context like 
     `Given the following context from the codebase and this PR diff, summarize and suggest improvements`
+
+#### Issues faced in Phase 3
+- Embeddings models are not included in the free AI account, and not available with docker model run.
+- Used hugging face `hf.co/mixedbread-ai/mxbai-embed-large-v1` embedding model
+- Chroma DB doesn't have a proper client to see the documents inserted. If you are not having Intellij Ultimate edition, then it will be challenging to see the data added to the vector store. 
+- Couple of APIs were included to fetch the data and delete the collection.
+- ChromaDB integration with Spring AI is not having 'like' option. Refer to the issue https://github.com/spring-projects/spring-ai/issues/328  
+- It is challenging to get models working with a free account. 
+- Slack professional trial account is also completed. :)
+- Last but not the least -- The response from the AI, is not a proper json (missing ending braces), but logs show all suggestions.
 
 ### Phase 4:
 - Use multi agents for dedicated tasks
