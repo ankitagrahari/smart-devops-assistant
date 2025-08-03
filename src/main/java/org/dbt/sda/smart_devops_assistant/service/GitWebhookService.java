@@ -33,7 +33,7 @@ public class GitWebhookService {
 
     public ResponseEntity<PRSuggestionResponse> analyzePR(WebhookRequest request) {
         if (Objects.nonNull(request.pullRequest()) && request.pullRequest().number() > 0) {
-            logger.debug("Request Data:{}--{}--{}", request.pullRequest().number(), request.pullRequest().url(), request.pullRequest().state());
+            logger.info("Request Data:{}--{}--{}", request.pullRequest().number(), request.pullRequest().url(), request.pullRequest().state());
 
             ResponseEntity<String> prDiffResponse = gitService.fetchPRDiff(request.pullRequest().diffUrl());
             String prDiffStr = "";
@@ -42,11 +42,15 @@ public class GitWebhookService {
             else
                 return ResponseEntity.notFound().build();
 
+            List<String> fileNameChanged = null;
             ResponseEntity<List<GitChangedFile>> response = gitService.fetchPRFiles(request.pullRequest().number().toString());
             if(response.getStatusCode().is2xxSuccessful()){
                 List<GitChangedFile> changedFiles = response.getBody();
 
                 if(Objects.nonNull(changedFiles) && !changedFiles.isEmpty()) {
+
+                    fileNameChanged = changedFiles.stream().map(GitChangedFile::filename).toList();
+
                     logger.info("Start loading Vector Store with changed files...");
                     long start = System.currentTimeMillis();
                     populateVectorStore.populateVectorStore(changedFiles);
@@ -56,7 +60,7 @@ public class GitWebhookService {
                 }
             }
 
-            return ResponseEntity.ok(aiService.analyzePR(prDiffStr));
+            return ResponseEntity.ok(aiService.analyzePR(prDiffStr, fileNameChanged));
         }
         return ResponseEntity.badRequest().build();
     }

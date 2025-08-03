@@ -17,7 +17,7 @@ provide suggestion on the code changes. It will also push the review messages to
 The **development process** is divided into 4 phases and 1 option phase. 
 - [x] Phase 1: Foundation and Setup (Build base Project and integrate basic Github PR analysis) 
 - [x] Phase 2: Integrate Github + Slack (Create a working CI workflow that uses AI for code review summaries)
-- [ ] Phase 3: RAG with Vector Store (Make AI context-aware using your actual codebase/docs)
+- [x] Phase 3: RAG with Vector Store (Make AI context-aware using your actual codebase/docs)
 - [ ] Phase 4: AI Agents & Coordination (Use multi-agents for dedicated tasks)
 - [ ] Phase 5: Dashboard and Enhancements (Add visibility and manual controls)
 
@@ -54,6 +54,9 @@ The **development process** is divided into 4 phases and 1 option phase.
      - store the content of these files to VectorStore in ChromaDB.
      - And then run the AI prompt for suggestions.
 - Feed the context into your AI prompts for smarter suggestions.
+- Create endpoints to check on chroma database content 
+  - `chroma/data?query=''&expression=''` - will fetch the content based on query or expression provided
+  - `chroma/deleteCollection` - will delete the default collection described in application.properties. 
 - Create an endpoint `/ask-doc` to allow querying project-specific info.
 - In this phase we will be building 
   - A vector store (ChromaDB in this example) that indexes your code and documents 
@@ -66,6 +69,14 @@ The **development process** is divided into 4 phases and 1 option phase.
   - Improved AI prompt that include retrieved context like 
     `Given the following context from the codebase and this PR diff, summarize and suggest improvements`
 
+#### Issues faced in Phase 3
+- Embeddings models are not included in the free AI account, and not available with docker model run.
+- Used hugging face `hf.co/mixedbread-ai/mxbai-embed-large-v1` embedding model
+- Chroma DB doesn't have a proper client to see the documents inserted. If you are not having Intellij Ultimate edition, then it will be challenging to see the data added to the vector store. 
+- Couple of APIs were included to fetch the data and delete the collection.
+- It is challenging to get models working with a free account. 
+- Slack professional trial account is also completed. :)
+- Last but not the least -- The response from the AI, is not a proper json (missing ending braces), but logs show all suggestions.
 
 ### Phase 4:
 - Use multi agents for dedicated tasks

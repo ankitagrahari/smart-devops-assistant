@@ -53,30 +53,11 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Listing the entities saved in H2 DB");
         List<GitFileMetaDataDTO> list = gitFileMetaDataRepository.findAll();
         list.forEach(dto -> log.info(dto.toString()));
+        log.info("-------------------------------------");
     }
 
     @Override
     public void run(String... args) {
         loadData();
     }
-
-//    private void loadVectorStoreWithLocalSourceFiles(){
-//        try{
-//            List<File> files = fileService.readFromDir("src/main/java");
-//            log.info("Files:{}", files.stream().filter(File::isFile));
-//            files.stream()
-//                    .filter(File::isFile)
-//                    .forEach(file -> {
-//                                Resource codeResource = new ClassPathResource(file.toURI().getPath());
-//                                DocumentReader reader = new TikaDocumentReader(codeResource);
-//
-//                                TextSplitter textSplitter = new TokenTextSplitter();
-//                                vectorStore.add(textSplitter.apply(reader.get()));
-//                            }
-//                    );
-//            log.info("VectorStore data load completed!");
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 }

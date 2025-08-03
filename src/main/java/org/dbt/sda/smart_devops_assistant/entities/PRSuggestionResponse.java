@@ -1,9 +1,11 @@
 package org.dbt.sda.smart_devops_assistant.entities;
 
+import java.util.List;
+
 public class PRSuggestionResponse {
 
     private String summary;
-    private String suggestions;
+    private List<String> suggestions;
     private String testCaseIdea;
 
     public String getSummary() {
@@ -14,11 +16,11 @@ public class PRSuggestionResponse {
         this.summary = summary;
     }
 
-    public String getSuggestions() {
+    public List<String> getSuggestions() {
         return suggestions;
     }
 
-    public void setSuggestions(String suggestions) {
+    public void setSuggestions(List<String> suggestions) {
         this.suggestions = suggestions;
     }
 

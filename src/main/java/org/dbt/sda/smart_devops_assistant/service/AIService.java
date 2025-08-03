@@ -13,7 +13,9 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AIService {
@@ -33,17 +35,19 @@ public class AIService {
         this.vectorStore = vectorStore;
     }
 
-    public PRSuggestionResponse analyzePR(String prDiff){
+    public PRSuggestionResponse analyzePR(String prDiff, List<String> fileNames){
         PromptTemplate pt = new PromptTemplate("""
-            As an expert programmer and given the following context from the codebase and this PR diff {prDiff},
-            review the pull request difference and suggest improvements.
+            Given the following context from the codebase and this PR diff {prDiff}, summarize and suggest improvements.
         """);
 
+        String files = String.join("','", fileNames);
+        logger.info("files: {}", files);
+        //This query will list down the file content from vector db, and inject it with the prompt to provide context-aware suggestion
         QuestionAnswerAdvisor qaAdvisor = QuestionAnswerAdvisor.builder(vectorStore)
                 .searchRequest(SearchRequest.builder()
                         .similarityThreshold(SIMILARITY_THRESHOLD)
-                        .query("The files mentioned in the PR diff to provide the context for improvements")
-                        .topK(3)
+                        .filterExpression("path in ['"+ String.join("','", fileNames) + "']")
+                        .topK(5)
                         .build())
                 .build();
 
